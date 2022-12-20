@@ -6,6 +6,10 @@ import restart
 
 prefix = "?"
 allowed_channels = ["bot-test", "botti-koodaus🔒"]
+
+swear = ["Voi helv*tti sun kanssa", "Ei jum*lauta", "P*ska", "P*rkele", "Ei s*atana", "V*ttu Jari", "Hista v*ttu", "Ei v*ttu s*atana k*si p*rkele", "Mä p*nen sun mutsii", "Haista v*ttu", "Haista vesa v*ttu"]
+
+other_swear = ["F*ck you", "Oh sh*t", "Bloody h*ll mate", "Sch*iße", "You son of a b*tch", "A*shole", "F*cking bastard", "B*tch", "F*cking c*nt", "D*ckhead", "I f*ck your mom"]
  
 meme_list = ["https://www.reddit.com/r/linux_memes/comments/wcbkjg/linux_users_whenever_they_interact_with_windows/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/wbbjq9j3nrn61.jpg", "https://i.redd.it/rvenotrgq1x61.jpg", "https://www.reddit.com/r/linuxmemes/comments/ppi87t/haha/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/qvurau/minecraft/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/qg3nac/made_it_on_linux/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/aryo9p0vt4p71.png", "https://www.reddit.com/r/linuxmemes/comments/pmble6/can_you_do_that_on_macos_or_windows_no_only_on/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/po8dm9/thats_basicly_all_oses_in_one_video/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/kpyi19jqiey71.jpg", "https://i.redd.it/qie4ekb7lvn81.png", "https://www.reddit.com/r/linuxmemes/comments/hwpmni/linux_gaming_recently/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/c4koha23q3f51.jpg", "https://i.redd.it/d015wdvlxqw71.png"]
 
@@ -47,6 +51,10 @@ There really is a Linux, and these people are using it, but it is just a part of
     elif msg.startswith(prefix + "2023"):
       await message.channel.send("Year of the Linux desktop!!!")
 
+    elif msg.startswith(prefix + "kirosana"):
+      await message.channel.send(random.choice(swear))
+    elif msg.startswith(prefix + "swear"):
+      await message.channel.send(random.choice(other_swear))
     elif msg.startswith(prefix + "meme"):
       await message.channel.send(random.choice(meme_list))
     
@@ -56,8 +64,9 @@ There really is a Linux, and these people are using it, but it is just a part of
   
     # Check for the !help command
     elif msg.startswith(prefix + "help"):
-      await message.channel.send("Here is a list of available commands: " + prefix + "greet, " + prefix + "help, " + prefix + "yesno Question, " + prefix + "poll Question: option1, option2... , " + prefix + "roll")
+      await message.channel.send("Here is a list of available commands: " + prefix + "greet, " + prefix + "help, " + prefix + "swear, " + prefix + "kirosana, " + prefix + "2023, " + prefix + "meme, " + prefix + "yesno Question, " + prefix + "poll Question: option1, option2... , " + prefix + "roll and optionally a number.")
   
+    
     # Check for the !yesno command
     elif msg.startswith(prefix + "yesno"):
       # Split the message into a list containing the command and the rest of the message
@@ -74,7 +83,6 @@ There really is a Linux, and these people are using it, but it is just a part of
           # Add the thumbs up and thumbs down reactions to the message
           await poll_message.add_reaction("👍")
           await poll_message.add_reaction("👎")
-       
       else:
           # If the user didn't provide a question, send an error message
           await message.channel.send("Please provide a question for the poll.")
@@ -99,7 +107,6 @@ There really is a Linux, and these people are using it, but it is just a part of
               # Add the options to the poll message
               for i, option in enumerate(options):
                   poll_message += f"{i + 1}. {option.strip()}\n"
-      
           else:
               # If the user didn't provide a question or any options, send an error message
               await message.channel.send("Please provide a question and at least one option for the poll.")
@@ -111,11 +118,9 @@ There really is a Linux, and these people are using it, but it is just a part of
           for i in range(1, len(options) + 1):
               await poll_message.add_reaction(f"{i}:thumbsup:")
               await poll_message.add_reaction(f"{i}:thumbsdown:")
-         
       else:
           # If the user didn't provide a question for the poll, send an error message
           await message.channel.send("Please provide a question for the poll.")
-         
     elif msg.startswith(prefix + "roll"):
       # Split the message into a list of words
       words = msg.split()
@@ -137,6 +142,7 @@ There really is a Linux, and these people are using it, but it is just a part of
     else:
       return
       
+
 keep_alive()
 
 try:
