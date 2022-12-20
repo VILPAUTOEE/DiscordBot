@@ -3,6 +3,7 @@ import discord
 import random
 from keep_alive import keep_alive
  
+meme_list = ["https://www.reddit.com/r/linux_memes/comments/wcbkjg/linux_users_whenever_they_interact_with_windows/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/wbbjq9j3nrn61.jpg", "https://i.redd.it/rvenotrgq1x61.jpg", "https://www.reddit.com/r/linuxmemes/comments/ppi87t/haha/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/qvurau/minecraft/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/qg3nac/made_it_on_linux/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/aryo9p0vt4p71.png", "https://www.reddit.com/r/linuxmemes/comments/pmble6/can_you_do_that_on_macos_or_windows_no_only_on/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/po8dm9/thats_basicly_all_oses_in_one_video/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/kpyi19jqiey71.jpg", "https://i.redd.it/qie4ekb7lvn81.png", "https://www.reddit.com/r/linuxmemes/comments/hwpmni/linux_gaming_recently/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/c4koha23q3f51.jpg", "https://i.redd.it/d015wdvlxqw71.png"]
 
 intents = discord.Intents().all()
 client = discord.Client(intents=intents);
@@ -23,8 +24,14 @@ async def on_message(message):
   # Check if the message contains the word "bye"
   if "bye" in message.content.lower():
     await message.channel.send("Goodbye!")
-    
-    # Check for the !greet command
+
+  if message.content.lower().startswith("!2023"):
+    await message.channel.send("Year of the Linux desktop!!!")
+
+  if message.content.lower().startswith("!meme"):
+    await message.channel.send(random.choice(meme_list))
+  
+  # Check for the !greet command
   if message.content.lower().startswith("!greet"):
     await message.channel.send("Hello! How are you today?")
 
