@@ -41,7 +41,7 @@ async def on_message(message):
       return
       
     elif "linux" in msg:
-      await message.channel.send("""I’d just like to interject for a moment. What you’re refering to as Linux, is in fact, GNU/Linux, or as I’ve recently taken to calling it, GNU plus Linux. Linux is not an operating system unto itself, but rather another free component of a fully functioning GNU system made useful by the GNU corelibs, shell utilities and vital system components comprising a full OS as defined by POSIX.
+      await message.channel.send(""">>> I’d just like to interject for a moment. What you’re refering to as Linux, is in fact, GNU/Linux, or as I’ve recently taken to calling it, GNU plus Linux. Linux is not an operating system unto itself, but rather another free component of a fully functioning GNU system made useful by the GNU corelibs, shell utilities and vital system components comprising a full OS as defined by POSIX.
 
 Many computer users run a modified version of the GNU system every day, without realizing it. Through a peculiar turn of events, the version of GNU which is widely used today is often called Linux, and many of its users are not aware that it is basically the GNU system, developed by the GNU Project.
 
@@ -64,7 +64,7 @@ There really is a Linux, and these people are using it, but it is just a part of
   
     # Check for the !help command
     elif msg.startswith(prefix + "help"):
-      await message.channel.send("Here is a list of available commands: " + prefix + "greet, " + prefix + "help, " + prefix + "swear, " + prefix + "kirosana, " + prefix + "2023, " + prefix + "meme, " + prefix + "yesno Question, " + prefix + "poll Question: option1, option2... , " + prefix + "roll and optionally a number.")
+      await message.channel.send("Here is a list of available commands: \n" + prefix + "greet\n" + prefix + "help\n" + prefix + "swear\n" + prefix + "kirosana\n" + prefix + "2023\n" + prefix + "meme\n" + prefix + "yesno Question\n" + prefix + "poll Question: option1, option2... \n" + prefix + "roll and optionally a number.\n")
   
     
     # Check for the !yesno command
@@ -153,3 +153,5 @@ except discord.errors.HTTPException:
   restart()
   print("restarting")
   client.run(TOKEN)
+
+#https://discord.com/api/oauth2/authorize?client_id=1054778908207235102&permissions=534723947584&scope=bot
