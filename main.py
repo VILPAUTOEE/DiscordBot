@@ -284,7 +284,7 @@ async def leaderboard(ctx):
 @bot.slash_command(guild_ids=servers, name='weather', description='Get the weather for a location')
 async def weather(ctx, city, country):
     # Make a request to the OpenWeatherMap API to get the weather data for the specified location
-    api_key = '886c6e82d2c262ff807565a47a15cd66'
+    api_key = 'your_api_key'
     url = f'https://api.openweathermap.org/data/2.5/weather?q={city},{country}&appid={api_key}'
     r = requests.get(url)
     data = r.json()
