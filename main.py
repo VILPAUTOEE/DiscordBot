@@ -1,159 +1,324 @@
 import os
+from replit import db
 import discord
+from discord.ext import commands
 import restart
 from keep_alive import keep_alive
 import random
-from datetime import datetime
-random.seed(datetime.now().timestamp())
+from datetime import datetime as dt
+import requests
+import html
+import datetime
 
-prefix = "&"
-allowed_channels = ["bot-test", "botti-koodaus🔒"]
+from lists import prefix, allowed_channels, swear, other_swear, meme_list, scores
+from copyPasta import rmsmsg
 
-swear = ["Voi helv*tti sun kanssa", "Ei jum*lauta", "P*ska", "P*rkele", "Ei s*atana", "V*ttu Jari", "Hista v*ttu", "Ei v*ttu s*atana k*si p*rkele", "Mä p*nen sun mutsii", "Haista v*ttu", "Haista vesa v*ttu"]
+import json
 
-other_swear = ["F*ck you", "Oh sh*t", "Bloody h*ll mate", "Sch*iße", "You son of a b*tch", "A*shole", "F*cking bastard", "B*tch", "F*cking c*nt", "D*ckhead", "I f*ck your mom"]
- 
-meme_list = ["https://www.reddit.com/r/linux_memes/comments/wcbkjg/linux_users_whenever_they_interact_with_windows/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/wbbjq9j3nrn61.jpg", "https://i.redd.it/rvenotrgq1x61.jpg", "https://www.reddit.com/r/linuxmemes/comments/ppi87t/haha/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/qvurau/minecraft/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/qg3nac/made_it_on_linux/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/aryo9p0vt4p71.png", "https://www.reddit.com/r/linuxmemes/comments/pmble6/can_you_do_that_on_macos_or_windows_no_only_on/?utm_source=share&utm_medium=web2x&context=3", "https://www.reddit.com/r/linuxmemes/comments/po8dm9/thats_basicly_all_oses_in_one_video/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/kpyi19jqiey71.jpg", "https://i.redd.it/qie4ekb7lvn81.png", "https://www.reddit.com/r/linuxmemes/comments/hwpmni/linux_gaming_recently/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/c4koha23q3f51.jpg", "https://i.redd.it/d015wdvlxqw71.png", "https://www.reddit.com/r/linuxmemes/comments/syiit8/space_force_s02_windows_updates_fuck_microsoft/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/qjelkso0taq71.jpg", "https://i.redd.it/3waz8qqakg671.jpg", "https://i.redd.it/q461bzvggx381.jpg", "https://i.redd.it/z2av45hw35y41.jpg", "https://i.redd.it/0j79vtfqo2161.jpg", "https://i.redd.it/0qwakbeeonc81.png", "https://i.redd.it/ius8reeosec81.png", "https://i.redd.it/08fphaiw8up91.png", "https://i.redd.it/3h2yx4aef4q51.jpg", "https://i.redd.it/xjfut25pzmt71.jpg", "https://www.reddit.com/r/linuxmemes/comments/rnuf4v/open_source_my_beloved/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/c075eisgk9t91.jpg", "https://i.redd.it/mao2szb8wkz71.jpg", "https://www.reddit.com/r/linuxmemes/comments/rrw8ri/all_that_just_for_i_use_arch_btw/?utm_source=share&utm_medium=web2x&context=3", "https://i.redd.it/m2tpql563x451.png", "https://i.redd.it/zk6mlq87v86a1.png"]
+# List of JSON files to read
+json_files = ['scores.json', 'swear.json', 'other_swear.json', 'meme_list.json']
 
-intents = discord.Intents().all()
-client = discord.Client(intents=intents);
+# Initialize empty dictionaries to store the data from each file
+scores = []
+swear = []
+other_swear = []
+meme_list = []
 
-@client.event
+# Loop through the list of JSON files
+for json_file in json_files:
+    # Open the JSON file
+    with open(json_file, 'r') as f:
+        # Load the data from the file and store it in the appropriate dictionary
+        if json_file == 'scores.json':
+            scores = json.load(f)
+            f.close()
+        elif json_file == 'swear.json':
+            swear = json.load(f)
+            f.close()
+        elif json_file == 'other_swear.json':
+            other_swear = json.load(f)
+            f.close()
+        elif json_file == 'meme_list.json':
+            meme_list = json.load(f)
+            f.close()
+
+print(scores)
+print(swear)
+print(other_swear)
+print(meme_list)
+
+random.seed(dt.now().timestamp())
+
+
+#bot = discord.Bot()
+bot = commands.Bot()
+
+servers = [1005731721079165008, 1054778571882770453] #server id
+trivia_data = {}
+
+@bot.event
 async def on_ready():
-  print(f'{client.user} is now running!')
-  await client.change_presence(activity=discord.Game(prefix + "help"))
+  print(f'{bot.user} is now running!')
+  await bot.change_presence(activity=discord.Game("/help"))
 
-@client.event
-async def on_message(message):
-  username = str(message.author).split('#')[0]
-  channel = str(message.channel.name)
-  msg = message.content.lower()
-  if message.author == client.user:
+@bot.slash_command(guild_ids=servers, name="2023", description="Tell's what 2023 will come")
+async def yearOfTheLinux(ctx):
+  embed = discord.Embed(
+    title="2023",
+    description="Year of the Linux desktop",
+    color=discord.Colour.blurple(),
+    )
+  embed.set_image(url="https://i.imgur.com/Okbs2oG.jpg")
+  await ctx.respond("", embed=embed)
+
+@bot.slash_command(guild_ids=servers, name="kirosana", description="Swears in Finnish")
+async def swear123(ctx):
+  await ctx.respond(random.choice(swear))
+
+@bot.slash_command(guild_ids=servers, name="swear", description="Swears")
+async def other_swear123(ctx):
+  await ctx.respond(random.choice(other_swear))
+
+@bot.slash_command(guild_ids=servers, name="meme", description="Random meme")
+async def meme(ctx):
+  meme = random.choice(meme_list)
+  if meme.endswith(".jpg") or meme.endswith(".png"):
+    embed = discord.Embed(
+      title="Meme",
+      description="Randomly chochen meme",
+      color=discord.Colour.blurple(),
+      )
+    embed.set_image(url=meme)
+    await ctx.respond("", embed=embed)
+  else:
+    await ctx.respond(meme)
+
+  
+@bot.slash_command(guild_ids=servers, name="greet", description="Greets you")
+async def greet(ctx):
+  await ctx.respond("Hello! How are you?")
+
+@bot.slash_command(guild_ids=servers, name="help", description="Shows a list of all commands")
+async def help(ctx):
+  embed = discord.Embed(
+    title="Here is a list of available commands:",
+    description="/help\n/greet\n/swear\n/kirosana\n/2023\n/meme\n/yesno Question\n/poll Question: option1, option2... \n/roll and optionally a number\n/trivia\n/answer\n/leaderboard\n/weather city, country example. /weather Laukaa, FI",
+    color=discord.Colour.blurple(),
+    )
+  embed.set_image(url="https://helperbyte.com/files/questions/42bc13f6-08df-827a-92b5-8390e3cc2c24.png")
+  await ctx.respond("Help", embed=embed)
+
+@bot.slash_command(guild_ids=servers, name='roll', description='Roll a die')
+async def roll(ctx, dice_sides: int=6):
+    roll = random.randint(1, dice_sides)
+    embed = discord.Embed(title=f"You rolled a {roll}!", color=discord.Color.blue())
+    await ctx.respond(embed=embed)
+
+
+@bot.slash_command(guild_ids=servers, name='poll', description='Create a poll')
+async def poll(ctx, question: str, options: str):
+  numbers_to_words = {
+    0: '0️⃣',
+    1: '1️⃣',
+    2: '2️⃣',
+    3: '3️⃣',
+    4: '4️⃣',
+    5: '5️⃣',
+    6: '6️⃣',
+    7: '7️⃣',
+    8: '8️⃣',
+    9: '9️⃣',
+    10: '🔟'
+  } 
+  # Split the message into a list containing the question and options
+
+  # Check if the user provided a question and at least one option
+  if len(options) >= 2:
+    # Create the poll message
+    poll_message = question + "\n"
+
+    # Split the options by the `,` character
+    options = options.split(",")
+
+    for i, option in enumerate(options):
+      poll_message += f"{i + 1}. {option.strip()}\n"
+  else:
+    # If the user didn't provide a question or any options, send an error message
+    embed = discord.Embed(title="Error", description="Please provide a question and at least one option for the poll.", color=discord.Color.red())
+    await ctx.respond(embed=embed)
     return
-    
-  # Check if the message contains the word "hello"
-  if channel in allowed_channels:
-    if "hello" in msg or "hi" in msg:
-      await message.channel.send("Hi " + username + "!")
-      return
+
+  # Create the embed message
+  embed = discord.Embed(title="POLL", description=poll_message, color=discord.Color.blue())
+  # Send the embed message to the channel
+  poll_message2 = await ctx.send("", embed=embed)
+  await ctx.respond("‎ ")
+  # Add a reaction for each option in the poll
+  for i in range(1, len(options) + 1):
+    await poll_message2.add_reaction(str(numbers_to_words[i]))
       
-    # Check if the message contains the word "bye"
-    elif "bye" in msg:
-      await message.channel.send("Goodbye " + username + "!")
-      return
+
+@bot.slash_command(guild_ids=servers, name='yesno', description='Create a yes/no poll')
+async def yesno(ctx, *, question: str):
+  # Create the poll message
+  poll_message = "**POLL:** " + question + "\n\n"
+  poll_message += "1. Yes\n2. No\n"
+
+  # Create the embed message
+  embed = discord.Embed(title="POLL", description=poll_message, color=discord.Color.blue())
+  # Send the embed message to the channel
+  poll_message2 = await ctx.send("", embed=embed)
+  await ctx.respond("‎ ")
+  # Add the thumbs up and thumbs down reactions to the message
+  await poll_message2.add_reaction("👍")
+  await poll_message2.add_reaction("👎")
+
+
+
+@bot.slash_command(guild_ids=servers, name="trivia", description="Gives you a trivia question to answer")
+async def trivia(ctx):
+    # Use the Open Trivia DB API to get a random trivia question
+    r = requests.get("https://opentdb.com/api.php?amount=1&type=multiple")
+    data = r.json()
+    if "results" in data:
+        # Extract the question, correct answer, and incorrect answers from the API response
+        question = html.unescape(data["results"][0]["question"])
+        correct_answer = html.unescape(data["results"][0]["correct_answer"])
+        incorrect_answers = html.unescape(data["results"][0]["incorrect_answers"])
+        # Shuffle the list of answers so the correct answer isn't always the last one
+        answers = incorrect_answers + [correct_answer]
+        random.shuffle(answers)
+        # Save the question, correct answer, and answers in the trivia_data dictionary
+        trivia_data["question"] = question
+        trivia_data["correct_answer"] = correct_answer
+        trivia_data["answers"] = answers
       
-    elif "linux" in msg:
-      await message.channel.send(""">>> I’d just like to interject for a moment. What you’re refering to as Linux, is in fact, GNU/Linux, or as I’ve recently taken to calling it, GNU plus Linux. Linux is not an operating system unto itself, but rather another free component of a fully functioning GNU system made useful by the GNU corelibs, shell utilities and vital system components comprising a full OS as defined by POSIX.
-
-Many computer users run a modified version of the GNU system every day, without realizing it. Through a peculiar turn of events, the version of GNU which is widely used today is often called Linux, and many of its users are not aware that it is basically the GNU system, developed by the GNU Project.
-
-There really is a Linux, and these people are using it, but it is just a part of the system they use. Linux is the kernel: the program in the system that allocates the machine’s resources to the other programs that you run. The kernel is an essential part of an operating system, but useless by itself; it can only function in the context of a complete operating system. Linux is normally used in combination with the GNU operating system: the whole system is basically GNU with Linux added, or GNU/Linux. All the so-called Linux distributions are really distributions of GNU/Linux!""")
-      return
+        # Create a list of numbered choices for the user to choose from
+        choices = html.unescape("\n".join(["{}. {}".format(i+1, a) for i, a in enumerate(answers)]))
+        # Create an embed object
+        embed = discord.Embed(title="Trivia", color=discord.Colour.blurple())
+        # Add the question as a field in the embed object
+        embed.add_field(name="Question", value=question, inline=False)
+        # Add the list of numbered choices as a field in the embed object
+        embed.add_field(name="Choices", value=choices, inline=False)
+        # Send the embed message
+        await ctx.respond(embed=embed)
       
-    elif msg.startswith(prefix + "2023"):
-      await message.channel.send("Year of the Linux desktop!!!")
-
-    elif msg.startswith(prefix + "kirosana"):
-      await message.channel.send(random.choice(swear))
-    elif msg.startswith(prefix + "swear"):
-      await message.channel.send(random.choice(other_swear))
-    elif msg.startswith(prefix + "meme"):
-      await message.channel.send(random.choice(meme_list))
-    
-    # Check for the !greet command
-    elif msg.startswith(prefix + "greet"):
-      await message.channel.send("Hello! How are you today?")
-  
-    # Check for the !help command
-    elif msg.startswith(prefix + "help"):
-      await message.channel.send("Here is a list of available commands: \n" + prefix + "greet\n" + prefix + "help\n" + prefix + "swear\n" + prefix + "kirosana\n" + prefix + "2023\n" + prefix + "meme\n" + prefix + "yesno Question\n" + prefix + "poll Question: option1, option2... \n" + prefix + "roll and optionally a number.\n")
-  
-    
-    # Check for the !yesno command
-    elif msg.startswith(prefix + "yesno"):
-      # Split the message into a list containing the command and the rest of the message
-      words = msg.split(maxsplit=1)
-  
-      # Check if the user provided a question
-      if len(words) >= 2:
-          # Create the poll message
-          poll_message = "**POLL:** " + words[1] + "\n\n"
-          poll_message += "1. Yes\n2. No\n"
-  
-          # Send the poll message to the channel
-          poll_message = await message.channel.send(poll_message)
-          # Add the thumbs up and thumbs down reactions to the message
-          await poll_message.add_reaction("👍")
-          await poll_message.add_reaction("👎")
-      else:
-          # If the user didn't provide a question, send an error message
-          await message.channel.send("Please provide a question for the poll.")
-  
-    elif msg.startswith(prefix + "poll"):
-      # Split the message into a list containing the command and the rest of the message
-      words = msg.split(maxsplit=1)
-  
-      # Check if the user provided a question for the poll
-      if len(words) >= 2:
-          # Split the rest of the message into a list containing the question and options
-          parts = words[1].split(":")
-  
-          # Check if the user provided a question and at least one option
-          if len(parts) >= 2:
-              # Create the poll message
-              poll_message = "**POLL:** " + parts[0] + "\n\n"
-  
-              # Split the options by the `,` character
-              options = parts[1].split(",")
-  
-              # Add the options to the poll message
-              for i, option in enumerate(options):
-                  poll_message += f"{i + 1}. {option.strip()}\n"
-          else:
-              # If the user didn't provide a question or any options, send an error message
-              await message.channel.send("Please provide a question and at least one option for the poll.")
-              return
-  
-          # Send the poll message to the channel
-          poll_message = await message.channel.send(poll_message)
-          # Add a reaction for each option in the poll
-          for i in range(1, len(options) + 1):
-              await poll_message.add_reaction(f"{i}:thumbsup:")
-              await poll_message.add_reaction(f"{i}:thumbsdown:")
-      else:
-          # If the user didn't provide a question for the poll, send an error message
-          await message.channel.send("Please provide a question for the poll.")
-    elif msg.startswith(prefix + "roll"):
-      # Split the message into a list of words
-      words = msg.split()
-  
-      # Set the default upper bound to 6
-      upper_bound = 6
-  
-      # Check if there is a second word in the list
-      if len(words) >= 2:
-        # Check if the second word is a valid integer
-        if words[1].isdigit():
-          # Convert the second word to an integer and use it as the upper bound
-          upper_bound = int(words[1])
-  
-      # Generate a random number between 1 and the upper bound
-      roll = random.randint(1, upper_bound)
-      await message.channel.send(f"You rolled a {roll}!")
-
+@bot.slash_command(guild_ids=servers, name="answer", description="Submits your answer to the current trivia question")
+async def answer(ctx, *, answer):
+    # Check if there is a current trivia question
+    if "question" in trivia_data:
+        # Extract the correct answer and list of answers from the trivia_data dictionary
+        correct_answer = trivia_data["correct_answer"]
+        answers = trivia_data["answers"]
+        try:
+            # Convert the user's response to an integer and use it to get the corresponding answer from the list
+            response = int(answer)
+            selected_answer = answers[response - 1]
+            # Check if the selected answer is correct
+            if selected_answer == correct_answer:
+                # Create the embed message for a correct answer
+                embed = discord.Embed(title="Correct!", color=discord.Colour.green())
+                embed.add_field(name="Answer", value=correct_answer)
+                await ctx.respond(embed=embed)
+                
+                trivia_data.clear()
+                user_id = ctx.author.id
+                for entry in scores:
+                    if entry[0] == user_id:
+                        # Update the score for the user
+                        entry[1] += 1
+                        break
+                else:
+                    # The user_id was not found in the list, so add a new entry
+                    scores.append([user_id, 1])
+                
+                # Serialize the scores dictionary to a JSON string
+                # scores_json = json.dumps(scores)
+                # Write the JSON string to the scores.json file
+                with open('scores.json', 'w') as f:
+                    json.dump(scores, f)
+                    
+                f.close()
+            else:
+                # Create the embed message for an incorrect answer
+                embed = discord.Embed(title="Incorrect", color=discord.Colour.red())
+                embed.add_field(name="Correct Answer", value=correct_answer)
+                await ctx.respond(embed=embed)
+                trivia_data.clear()
+        except ValueError:
+            # The user's response could not be converted to an integer
+            embed = discord.Embed(title="Invalid Input", color=discord.Colour.orange())
+            embed.add_field(name="Error", value="Please select a valid option by typing the number corresponding to your answer.")
+            await ctx.respond(embed=embed)
     else:
-      return
-      
+        # There is no current trivia question
+        embed = discord.Embed(title="Error", description="There is no current trivia question. Use the `/trivia` command to start a new game.", color=discord.Colour.red())
+        
+        await ctx.respond("", embed=embed)
+
+@bot.slash_command(guild_ids=servers, name="leaderboard", description="Displays the top 10 users with the highest scores")
+async def leaderboard(ctx):
+    # Read the scores from the scores.json file
+    with open('scores.json', 'r') as f:
+        scores = json.load(f)
+
+    # Get a list of (user_id, score) tuples sorted by score in descending order
+    sorted_scores = sorted(scores, key=lambda x: x[1], reverse=True)
+    # Get the top 10 scores
+    top_scores = sorted_scores[:10]
+    # Build the leaderboard message
+    leaderboard_message = ""
+    for i, (user_id, score) in enumerate(top_scores):
+        # Get the user's name
+        user = await bot.fetch_user(user_id)
+        user_name = user.name if user else "Unknown User"
+        # Add the user's score to the leaderboard message
+        leaderboard_message += "**{}**. {}: {}\n".format(i+1, user_name, score)
+    # Create the embed object
+    embed = discord.Embed(title="Top 10 Leaderboard", color=discord.Colour.blurple())
+    # Send the embed message
+    embed.add_field(name='Leaderboard', value=leaderboard_message)
+    await ctx.respond(embed=embed)
+
+@bot.slash_command(guild_ids=servers, name='weather', description='Get the weather for a location')
+async def weather(ctx, city, country):
+    # Make a request to the OpenWeatherMap API to get the weather data for the specified location
+    api_key = '886c6e82d2c262ff807565a47a15cd66'
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={city},{country}&appid={api_key}'
+    r = requests.get(url)
+    data = r.json()
+    # Check if the API returned an error
+    if data['cod'] != 200:
+        await ctx.respond(f'Error: {data["message"]}')
+        return
+    # Extract the weather data from the API response
+    temperature = data['main']['temp'] - 273.15
+    weather_description = data['weather'][0]['description']
+    humidity = data['main']['humidity']
+    wind_speed = data['wind']['speed']
+    sunrise_timestamp = data['sys']['sunrise']
+    sunrise = datetime.datetime.fromtimestamp(sunrise_timestamp).strftime('%H.%M')
+    sunset_timestamp = data['sys']['sunset']
+    sunset = datetime.datetime.fromtimestamp(sunset_timestamp).strftime('%H.%M')
+    # Send the weather data to the user
+    embed = discord.Embed(title='Weather Report', description=city + ", " + country, color=discord.Colour.blurple())
+    embed.add_field(name='Temperature', value=f'{temperature:.1f}°C')
+    embed.add_field(name='Weather', value=weather_description)
+    embed.add_field(name='Humidity', value=f'{humidity}%')
+    embed.add_field(name='Wind Speed', value=f'{wind_speed} m/s')
+    embed.add_field(name='Sunrise', value=sunrise)
+    embed.add_field(name='Sunset', value=sunset)
+    # Send the embed to the user
+    await ctx.respond(embed=embed)
 
 keep_alive()
 
 try:
   TOKEN = os.environ.get("DISCORD_BOT_SECRET")
-  client.run(TOKEN)
+  bot.run(TOKEN)
 except discord.errors.HTTPException:
   os.system("kill 1")
   restart()
   print("restarting")
-  client.run(TOKEN)
-
-#https://discord.com/api/oauth2/authorize?client_id=1054778908207235102&permissions=534723947584&scope=bot
+  bot.run(TOKEN)
