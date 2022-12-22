@@ -383,11 +383,14 @@ async def weather(ctx, city, country):
 
 keep_alive()
 
+
 try:
+  
   TOKEN = os.environ.get("DISCORD_BOT_SECRET")
   bot.run(TOKEN)
   
 except discord.errors.HTTPException:
+  
   os.system("kill 1")
   restart()
   print("restarting")
